@@ -128,7 +128,7 @@ pipeline {
 
   agent {
     node {
-      label 'jenkins-slave-base-rhel7'
+      label 'jenkins-slave-image-mgmt'
     } //node
   }
   stages {
