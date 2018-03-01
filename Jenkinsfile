@@ -136,7 +136,7 @@ pipeline {
           script {
             sh """
             set +x
-            echo "Promoting ${env.DEV_PROJECT}/${env.APP_NAME} -> ${env.DEV_REGISTRY}/${env.TEST_PROJECT}/${env.APP_NAME}"
+            echo "Promoting ${env.DEV_PROJECT}/${env.APP_NAME} -> ${env.TEST_REGISTRY}/${env.TEST_PROJECT}/${env.APP_NAME}"
 
             skopeo --tls-verify=false copy --remove-signatures --src-creds ${env.DEV_REGISTRY_USER}:${env.DEV_REGISTRY_TOKEN} --dest-creds ${env.TEST_REGISTRY_USER}:${env.TEST_REGISTRY_TOKEN} docker://${env.DEV_REGISTRY}/${env.DEV_PROJECT}/${env.APP_NAME} docker://${env.TEST_REGISTRY}/${env.STAGE_PROJECT}/${env.APP_NAME}
             """
