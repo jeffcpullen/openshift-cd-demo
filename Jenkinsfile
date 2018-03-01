@@ -131,8 +131,9 @@ pipeline {
 
 //  stages {
     stage ('tag and push') {
-      container('jenkins-slave-image-mgmt') {
-        script {
+      steps {
+        container('jenkins-slave-image-mgmt') {
+          script {
             sh """
             set +x
             imageRegistry=\$(${env.OC_CMD} get is ${env.APP_NAME} --template='{{ .status.dockerImageRepository }}' -n ${env.DEV_PROJECT} | cut -d/ -f1)
@@ -142,7 +143,8 @@ pipeline {
             skopeo --tls-verify=false copy --remove-signatures --src-creds ${env.DEV_REGISTRY_USER}:${env.DEV_REGISTRY_TOKEN} --dest-creds ${env.TEST_REGISTRY_USER}:${env.TEST_REGISTRY_TOKEN} docker://${env.DEV_REGISTRY}/${env.DEV_PROJECT}/${env.APP_NAME} docker://${env.TEST_REGISTRY}/${env.STAGE_PROJECT}/${env.APP_NAME}
             """
             } //script
-        }
+        } //container
+      } //steps
     } //stage
 
      stage('Deploy Test') {
