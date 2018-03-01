@@ -126,18 +126,22 @@ pipeline {
     } //stage
 } //stages
 
-  node ('jenkins-slave-base-rhel7') {
-    stages {
-      stage 'tag and push' {
-        script {
+  agent {
+    node {
+      label 'jenkins-slave-base-rhel7'
+    } //node
+  }
+  stages {
+    stage 'tag and push' {
+      script {
             set +x
             imageRegistry=\$(${env.OC_CMD} get is ${env.APP_NAME} --template='{{ .status.dockerImageRepository }}' -n ${env.DEV_PROJECT} | cut -d/ -f1)
 
             echo "Promoting ${imageRegistry}/${env.DEV_PROJECT}/${env.APP_NAME} -> ${imageRegistry}/${env.TEST_PROJECT}/${env.APP_NAME}"
 
             skopeo --tls-verify=false copy --remove-signatures --src-creds ${env.DEV_REGISTRY_USER}:${env.DEV_REGISTRY_TOKEN} --dest-creds ${env.TEST_REGISTRY_USER}:${env.TEST_REGISTRY_TOKEN} docker://${env.DEV_REGISTRY}/${env.DEV_PROJECT}/${env.APP_NAME} docker://${env.TEST_REGISTRY}/${env.STAGE_PROJECT}/${env.APP_NAME}
-        } //script
-     } //stage
+      } //script
+    } //stage
 
      stage('Deploy Test') {
         steps {
