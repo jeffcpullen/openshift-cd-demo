@@ -126,11 +126,10 @@ pipeline {
     } //stage
 } //stages
 
-  agent {
-    node {
-      label 'jenkins-slave-image-mgmt'
-    } //node
-  }
+  node {
+    label 'jenkins-slave-image-mgmt'
+  } //node
+
   stages {
     stage 'tag and push' {
       script {
@@ -161,5 +160,4 @@ pipeline {
         } //steps
       } //stage
     } //stages
-  } //node
 } //pipeline
