@@ -124,7 +124,6 @@ pipeline {
         } //timeout
       } //steps
     } //stage
-} //stages
 
 //  node {
 //    label 'jenkins-slave-image-mgmt'
@@ -162,4 +161,5 @@ pipeline {
           } //script
         } //steps
     } //stage
+  } //stages
 } //pipeline
