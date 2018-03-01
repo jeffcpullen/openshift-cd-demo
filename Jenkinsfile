@@ -161,6 +161,5 @@ pipeline {
             } // openshift.withCluster
           } //script
         } //steps
-      } //stage
-    } //stages
+    } //stage
 } //pipeline
