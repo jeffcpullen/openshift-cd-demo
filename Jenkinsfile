@@ -131,7 +131,7 @@ pipeline {
 
 //  stages {
     stage ('tag and push') {
-      container('jenkins-slave-image-mgmt')
+      container('jenkins-slave-image-mgmt') {
         script {
             sh """
             set +x
@@ -142,6 +142,7 @@ pipeline {
             skopeo --tls-verify=false copy --remove-signatures --src-creds ${env.DEV_REGISTRY_USER}:${env.DEV_REGISTRY_TOKEN} --dest-creds ${env.TEST_REGISTRY_USER}:${env.TEST_REGISTRY_TOKEN} docker://${env.DEV_REGISTRY}/${env.DEV_PROJECT}/${env.APP_NAME} docker://${env.TEST_REGISTRY}/${env.STAGE_PROJECT}/${env.APP_NAME}
             """
             } //script
+        }
     } //stage
 
      stage('Deploy Test') {
