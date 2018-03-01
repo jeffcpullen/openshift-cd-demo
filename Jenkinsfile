@@ -131,7 +131,7 @@ pipeline {
 //  } //node
 
 //  stages {
-    stage 'tag and push' {
+    stage ('tag and push') {
       container('jenkins-slave-image-mgmt')
         script {
             sh """
