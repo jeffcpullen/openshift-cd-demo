@@ -30,7 +30,7 @@ pipeline {
             sh "${mvnCmd} sonar:sonar -Dsonar.host.url=http://sonarqube:9000 -DskipTests=true"
           } else {
             sh "${mvnCmd} site -DskipTests=true"
-            
+
             step([$class: 'CheckStylePublisher', unstableTotalAll:'300'])
             step([$class: 'PmdPublisher', unstableTotalAll:'20'])
             step([$class: 'FindBugsPublisher', pattern: '**/findbugsXml.xml', unstableTotalAll:'20'])
@@ -69,7 +69,7 @@ pipeline {
       steps {
         sh "rm -rf oc-build && mkdir -p oc-build/deployments"
         sh "cp target/openshift-tasks.war oc-build/deployments/ROOT.war"
-        
+
         script {
           openshift.withCluster() {
             openshift.withProject(env.DEV_PROJECT) {
@@ -124,52 +124,38 @@ pipeline {
         } //timeout
       } //steps
     } //stage
-}
-}
-node {'jenkins-slave-base-rhel7' { 
-    stage 'tag and push' {
+} //stages
+
+  node ('jenkins-slave-base-rhel7') {
+    stages {
+      stage 'tag and push' {
         script {
-            sh """
             set +x
             imageRegistry=\$(${env.OC_CMD} get is ${env.APP_NAME} --template='{{ .status.dockerImageRepository }}' -n ${env.DEV_PROJECT} | cut -d/ -f1)
 
             echo "Promoting ${imageRegistry}/${env.DEV_PROJECT}/${env.APP_NAME} -> ${imageRegistry}/${env.TEST_PROJECT}/${env.APP_NAME}"
 
             skopeo --tls-verify=false copy --remove-signatures --src-creds ${env.DEV_REGISTRY_USER}:${env.DEV_REGISTRY_TOKEN} --dest-creds ${env.TEST_REGISTRY_USER}:${env.TEST_REGISTRY_TOKEN} docker://${env.DEV_REGISTRY}/${env.DEV_PROJECT}/${env.APP_NAME} docker://${env.TEST_REGISTRY}/${env.STAGE_PROJECT}/${env.APP_NAME}
-            """
         } //script
      } //stage
 
-    
-        /*script {
-          openshift.withCluster() {
-            openshift.tag("${env.DEV_PROJECT}/tasks:latest", "${env.TEST_URL}/${env.STAGE_PROJECT}/tasks:${version}")
-          }
-        }
-        script {
-            openshift.withCluster() {
-                openshift.raw("sh","docker","push","${env.TEST_URL}/${env.STAGE_PROJECT}/tasks:${version}")
-            }
-        }*/
-        // sh docker rmi "${env.DEV_PROJECT}/tasks:latest"
-        // sh docker rmi "${env.TEST_URL}/${env.STAGE_PROJECT}/tasks:${version}"
-        
-    stage('Deploy Test') {
-      steps {
-        script {
-          openshift.withCluster('test') {
-            openshift.withProject(env.STAGE_PROJECT) {
-              if (openshift.selector('dc', 'tasks').exists()) {
-                openshift.selector('dc', 'tasks').delete()
-                openshift.selector('svc', 'tasks').delete()
-                openshift.selector('route', 'tasks').delete()
-              } //if
+     stage('Deploy Test') {
+        steps {
+          script {
+            openshift.withCluster('test') {
+              openshift.withProject(env.STAGE_PROJECT) {
+                if (openshift.selector('dc', 'tasks').exists()) {
+                  openshift.selector('dc', 'tasks').delete()
+                  openshift.selector('svc', 'tasks').delete()
+                  openshift.selector('route', 'tasks').delete()
+                } //if
 
-              openshift.newApp("tasks:${version}").narrow("svc").expose()
-            } //openshift.withProject
-          } // openshift.withCluster
-        } //script
-      } //steps
-    } //stage
-  } //stages
+                openshift.newApp("tasks:${version}").narrow("svc").expose()
+              } //openshift.withProject
+            } // openshift.withCluster
+          } //script
+        } //steps
+      } //stage
+    } //stages
+  } //node
 } //pipeline
